@@ -1,0 +1,423 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { parseAllData, findBestProvider, getRegionFlag, type ServiceData, type RegionData } from '../../../utils/data';
+import type { GetStaticPathsItem } from 'astro';
+
+export async function getStaticPaths() {
+  const { categories } = parseAllData();
+  const paths: GetStaticPathsItem[] = [];
+
+  for (const category of categories) {
+    for (const service of category.services) {
+      paths.push({
+        params: {
+          category: category.id,
+          service: service.id,
+        },
+        props: { service },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { service } = Astro.props as { service: ServiceData };
+const title = `${service.name} — лучший курс платежа | PayCompass`;
+const description = `Лучшие курсы платежей для ${service.name}. Сравнивайте цены провайдеров и платите меньше!`;
+---
+<Layout title={title} description={description}>
+  <style>
+    .page-header {
+      margin-bottom: 2.5rem;
+    }
+
+    .page-header h1 {
+      margin-bottom: 0.375rem;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      margin-bottom: 1rem;
+    }
+
+    .breadcrumb a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-primary-light);
+    }
+
+    .breadcrumb-sep {
+      color: var(--color-text-faint);
+      font-size: 0.75rem;
+    }
+
+    .breadcrumb-current {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+
+    .region-section {
+      margin-bottom: 2rem;
+    }
+
+    .region-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .region-header h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .region-meta {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+    }
+
+    .denom-block {
+      margin-bottom: 1.5rem;
+    }
+
+    .denom-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .denom-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+
+    .best-hint {
+      font-size: 0.75rem;
+      color: var(--color-success);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .price-table-wrapper {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-surface);
+    }
+
+    .price-table {
+        margin-top: 0;
+    }
+
+    .price-table th {
+      background: var(--color-bg-elevated);
+      padding: 0.625rem 1rem;
+    }
+
+    .price-table td {
+      padding: 0.625rem 1rem;
+    }
+
+    .provider-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+
+    .provider-name {
+      font-weight: 500;
+    }
+
+    .best-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--color-success);
+      background: var(--color-success-bg);
+      padding: 0.125rem 0.5rem;
+      border-radius: 100px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .price-cell {
+      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.9375rem;
+      letter-spacing: -0.02em;
+    }
+
+    .take-cell {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+    }
+
+    .action-cell {
+      text-align: right;
+    }
+
+    .btn-go {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      color: white;
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      box-shadow: 0 2px 8px rgba(109, 40, 217, 0.25);
+    }
+
+    .btn-go:hover {
+      box-shadow: 0 4px 16px rgba(109, 40, 217, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-go svg {
+      transition: transform var(--transition-fast);
+    }
+
+    .btn-go:hover svg {
+      transform: translateX(2px);
+    }
+
+    .row-best {
+      background: var(--color-success-bg) !important;
+    }
+
+    .row-best:hover {
+      background: rgba(16, 185, 129, 0.15) !important;
+    }
+
+    @media (max-width: 640px) {
+      .denom-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .price-table {
+        font-size: 0.8125rem;
+      }
+      .price-table th,
+      .price-table td {
+        padding: 0.5rem 0.625rem;
+      }
+    }
+  </style>
+
+  <div>
+    <a href="/" class="link-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+      </svg>
+      Главная
+    </a>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href={`/${service.categoryId}/`}>{service.categoryName}</a>
+      <span class="breadcrumb-sep">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </span>
+      <span class="breadcrumb-current">{service.name}</span>
+    </div>
+
+    <div class="page-header">
+      <h1>{service.name}</h1>
+      <p class="subtitle">
+        Сравнивайте цены провайдеров и выбирайте лучший курс
+      </p>
+    </div>
+
+    {service.regions.map((region) => (
+      <div class="region-section">
+        <div class="region-header">
+          <h2>
+            <span>{getRegionFlag(region.id)}</span>
+            {region.label}
+          </h2>
+          <div class="region-meta">
+            Оплата: <strong>{region.payCurrency}</strong>
+            {region.type === 'topups' && ' · Пополнение'}
+            {region.type === 'vouchers' && ' · Ваучеры'}
+          </div>
+        </div>
+
+        {region.type === 'topups' && region.topups && region.topups.length > 0 && (
+          region.topups.map((topup) => {
+            const allPrices = topup.providers.map(p => ({ name: p.name, price: p.price }));
+            const best = findBestProvider(allPrices);
+
+            return (
+              <div class="denom-block">
+                <div class="denom-header">
+                  <h3 class="denom-title">
+                    Пополнение {topup.currency}
+                  </h3>
+                  {best && best.savingsPercent > 0 && (
+                    <span class="best-hint">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                      </svg>
+                      Лучшая цена: {best.name} (экономия до {best.savingsPercent.toFixed(1)}%)
+                    </span>
+                  )}
+                </div>
+                <div class="price-table-wrapper">
+                  <table class="price-table">
+                    <thead>
+                      <tr>
+                        <th>Провайдер</th>
+                        <th>Получаете</th>
+                        <th>Цена ({region.payCurrency})</th>
+                        <th style="text-align: right">Действие</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {topup.providers.map((provider) => {
+                        const isBest = best && best.name === provider.name;
+                        return (
+                          <tr class={isBest ? 'row-best' : ''}>
+                            <td>
+                              <div class="provider-cell">
+                                {provider.logo && (
+                                  <img src={provider.logo} alt={provider.name} class="provider-logo" loading="lazy" />
+                                )}
+                                <span class="provider-name">{provider.name}</span>
+                                {isBest && <span class="best-badge">лучший</span>}
+                              </div>
+                            </td>
+                            <td class="take-cell">{provider.take > 0 ? `${provider.take} ${topup.currency}` : '—'}</td>
+                            <td class="price-cell">{provider.price.toFixed(2)}</td>
+                            <td class="action-cell">
+                              <a
+                                href={provider.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn-go"
+                              >
+                                Перейти
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                                </svg>
+                              </a>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })
+        )}
+
+        {region.type === 'vouchers' && region.vouchers && region.vouchers.length > 0 && (
+          region.vouchers.map((voucher) => {
+            const allPrices = voucher.providers.map(p => ({ name: p.name, price: p.price }));
+            const best = findBestProvider(allPrices);
+
+            return (
+              <div class="denom-block">
+                <div class="denom-header">
+                  <h3 class="denom-title">
+                    Ваучер: {voucher.name}
+                  </h3>
+                  {best && best.savingsPercent > 0 && (
+                    <span class="best-hint">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                      </svg>
+                      Лучшая цена: {best.name} (экономия до {best.savingsPercent.toFixed(1)}%)
+                    </span>
+                  )}
+                </div>
+                <div class="price-table-wrapper">
+                  <table class="price-table">
+                    <thead>
+                      <tr>
+                        <th>Провайдер</th>
+                        <th>Цена ({region.payCurrency})</th>
+                        <th style="text-align: right">Действие</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {voucher.providers.map((provider) => {
+                        const isBest = best && best.name === provider.name;
+                        return (
+                          <tr class={isBest ? 'row-best' : ''}>
+                            <td>
+                              <div class="provider-cell">
+                                {provider.logo && (
+                                  <img src={provider.logo} alt={provider.name} class="provider-logo" loading="lazy" />
+                                )}
+                                <span class="provider-name">{provider.name}</span>
+                                {isBest && <span class="best-badge">лучший</span>}
+                              </div>
+                            </td>
+                            <td class="price-cell">{provider.price.toFixed(2)}</td>
+                            <td class="action-cell">
+                              <a
+                                href={provider.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn-go"
+                              >
+                                Перейти
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                                </svg>
+                              </a>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    ))}
+
+    <!-- Structured data -->
+    <script type="application/ld+json" define:vars={{ s: service }}>
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": s.name,
+      "description": `Курсы пополнения ${s.name}`,
+      "category": s.categoryName,
+      "areaServed": {
+        "@type": "Country",
+        "name": "Russia"
+      }
+    }
+    </script>
+  </div>
+</Layout>

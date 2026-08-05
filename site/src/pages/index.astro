@@ -1,0 +1,341 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { parseAllData, getRegionFlag } from '../utils/data';
+
+const { categories } = parseAllData();
+---
+<Layout 
+  title="PayCompass — Найди лучший курс платежа" 
+  description="Сравниваем курсы платежей и переводов для Steam, PlayStation, App Store и других сервисов. Платите меньше, выбирайте лучшее!"
+>
+  <style>
+    .hero {
+      text-align: center;
+      padding: 3rem 0 4rem;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(109, 40, 217, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.875rem;
+      background: rgba(109, 40, 217, 0.1);
+      border: 1px solid rgba(109, 40, 217, 0.25);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-primary-light);
+      margin-bottom: 1.5rem;
+      animation: fadeUp var(--transition-slow);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 7vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1.05;
+      margin-bottom: 1rem;
+      animation: fadeUp var(--transition-slow) 50ms both;
+    }
+
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-accent) 50%, var(--color-primary-light) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 4s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero-subtitle {
+      font-size: 1.125rem;
+      color: var(--color-text-muted);
+      max-width: 520px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+      animation: fadeUp var(--transition-slow) 100ms both;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      animation: fadeUp var(--transition-slow) 150ms both;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--color-text);
+      font-family: var(--font-mono);
+    }
+
+    .hero-stat-label {
+      font-size: 0.75rem;
+      color: var(--color-text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .category-block {
+      margin-bottom: 2.5rem;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .category-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .category-link {
+      color: var(--color-text-muted);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .category-link:hover {
+      color: var(--color-primary-light);
+      background: var(--color-bg-subtle);
+    }
+
+    .category-link svg {
+      transition: transform var(--transition-fast);
+    }
+
+    .category-link:hover svg {
+      transform: translateX(3px);
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+
+    .service-card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .service-card .card {
+      height: 100%;
+    }
+
+    .service-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .service-name {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .service-regions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .service-region {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .service-region-label {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .service-region-detail {
+      padding-left: 1.25rem;
+      font-size: 0.75rem;
+      color: var(--color-text-faint);
+    }
+
+    .coming-soon {
+      opacity: 0.5;
+    }
+
+    .coming-soon .card {
+      border-style: dashed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        padding: 2rem 0 3rem;
+      }
+      .hero-stats {
+        gap: 1.5rem;
+      }
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Сравнение в реальном времени
+      </div>
+      <h1>
+        Платите<br />
+        <span class="gradient-text">по лучшей цене</span>
+      </h1>
+      <p class="hero-subtitle">
+        Сравниваем курсы пополнения и ваучеров для игровых и цифровых сервисов — чтобы вы всегда платили меньше
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">{categories.length}</div>
+          <div class="hero-stat-label">Категорий</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">{categories.reduce((sum, c) => sum + c.services.length, 0)}</div>
+          <div class="hero-stat-label">Сервисов</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">{categories.reduce((sum, c) => sum + c.services.reduce((s, svc) => s + svc.regions.length, 0), 0)}</div>
+          <div class="hero-stat-label">Регионов</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Секция: Платежи -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-emoji">💳</span>
+        <h2>Платежи</h2>
+      </div>
+
+      {categories.map((category) => (
+        <div class="category-block">
+          <div class="category-header">
+            <h3 class="category-title">{category.name}</h3>
+            <a href={`/${category.id}/`} class="category-link">
+              Все сервисы
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+
+          <div class="services-grid">
+            {category.services.map((service) => (
+              <a href={`/${category.id}/${service.id}/`} class="service-card">
+                <div class="card">
+                  <div class="service-card-header">
+                    <span class="service-name">{service.name}</span>
+                    <span class="badge badge--accent">{service.regions.length} регионов</span>
+                  </div>
+
+                  <div class="service-regions">
+                    {service.regions.map((region) => (
+                      <div class="service-region">
+                        <div class="service-region-label">
+                          <span>{getRegionFlag(region.id)}</span>
+                          <span>{region.label}</span>
+                        </div>
+                        
+                        {region.type === 'topups' && region.topups && region.topups.length > 0 && (
+                          <div class="service-region-detail">
+                            Пополнение: {region.topups.map((t) => t.currency).join(', ')} · оплата {region.payCurrency}
+                          </div>
+                        )}
+                        
+                        {region.type === 'vouchers' && region.vouchers && region.vouchers.length > 0 && (
+                          <div class="service-region-detail">
+                            Ваучеры: {region.vouchers.slice(0, 3).map((v) => v.name).join(', ')}
+                            {region.vouchers.length > 3 && ` (+${region.vouchers.length - 3})`}
+                            · оплата {region.payCurrency}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- Секция: Переводы (заглушка) -->
+    <section class="section coming-soon">
+      <div class="section-header">
+        <span class="section-emoji">🔄</span>
+        <h2>Переводы</h2>
+      </div>
+      <div class="card">
+        <p style="color: var(--color-text-muted);">Скоро появится</p>
+      </div>
+    </section>
+  </div>
+</Layout>
