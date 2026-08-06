@@ -9,8 +9,9 @@ interface Props {
 const { title, description = "Сравниваем курсы платежей и переводов для игровых и цифровых сервисов" } = Astro.props;
 const { categories } = parseAllData();
 const currentPath = Astro.url.pathname;
+const base = import.meta.env.BASE_URL || '';
 const siteUrl = import.meta.env.SITE || 'https://pay-compass.rust-guild.ru';
-const canonicalUrl = `${siteUrl}${currentPath}`;
+const canonicalUrl = `${siteUrl}${base}${currentPath.replace(base, '') || ''}`;
 ---
 <!doctype html>
 <html lang="ru">
@@ -48,7 +49,7 @@ const canonicalUrl = `${siteUrl}${currentPath}`;
       "isPartOf": {
         "@type": "WebSite",
         "name": "PayCompass",
-        "url": siteUrl,
+        "url": `${siteUrl}${base}`,
         "description": "Сравнение курсов платежей и переводов для игровых и цифровых сервисов"
       }
     })}
@@ -533,17 +534,17 @@ const canonicalUrl = `${siteUrl}${currentPath}`;
       <div class="container">
         <div class="header-inner">
           <div class="brand">
-            <a href="/">
+            <a href={base}>
               <span class="brand-icon" aria-hidden="true"></span>
               PayCompass
             </a>
           </div>
           <nav>
-            <a href="/" class={currentPath === '/' ? 'active' : ''}>Все</a>
+            <a href={base} class={currentPath === base || currentPath === '/' ? 'active' : ''}>Все</a>
             {categories.map((cat) => (
               <a
-                href={`/${cat.id}/`}
-                class={currentPath.startsWith(`/${cat.id}/`) ? 'active' : ''}
+                href={`${base}/${cat.id}/`}
+                class={currentPath.startsWith(`${base}/${cat.id}/`) ? 'active' : ''}
               >
                 {cat.name}
               </a>

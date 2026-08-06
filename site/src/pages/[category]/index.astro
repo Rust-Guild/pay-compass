@@ -18,10 +18,11 @@ export async function getStaticPaths() {
 }
 
 const { category } = Astro.props as { category: CategoryData };
+const base = import.meta.env.BASE_URL || '';
 const title = `${category.name} — курсы платежей | PayCompass`;
 const description = `Лучшие курсы для ${category.name}: ${category.services.map(s => s.name).join(', ')}. Сравнивайте и экономьте!`;
 const siteUrl = import.meta.env.SITE || 'https://pay-compass.rust-guild.ru';
-const pageUrl = `${siteUrl}/${category.id}/`;
+const pageUrl = `${siteUrl}${base}/${category.id}/`;
 ---
 <Layout title={title} description={description}>
   <!-- JSON-LD для страницы категории -->
@@ -115,7 +116,7 @@ const pageUrl = `${siteUrl}/${category.id}/`;
   </style>
 
   <div>
-    <a href="/" class="link-back">
+    <a href={base} class="link-back">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
       </svg>
@@ -161,7 +162,7 @@ const pageUrl = `${siteUrl}/${category.id}/`;
 
         return (
           <div>
-            <a href={`/${category.id}/${service.id}/`} class="service-link">
+            <a href={`${base}/${category.id}/${service.id}/`} class="service-link">
               <div class="card">
                 <h2 class="service-title">{service.name}</h2>
 
