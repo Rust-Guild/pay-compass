@@ -1,6 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { parseAllData, findBestProvider, getRegionFlag, type ServiceData, type RegionData } from '../../../utils/data';
+import { parseAllData, findBestProvider, getRegionFlag, type ServiceData } from '../../../utils/data';
 import type { GetStaticPathsItem } from 'astro';
 
 export async function getStaticPaths() {
@@ -23,25 +23,56 @@ export async function getStaticPaths() {
 }
 
 const { service } = Astro.props as { service: ServiceData };
-const title = `${service.name} — лучший курс платежа | PayCompass`;
-const description = `Лучшие курсы платежей для ${service.name}. Сравнивайте цены провайдеров и платите меньше!`;
+const siteUrl = import.meta.env.SITE || 'https://pay-compass.rust-guild.ru';
+const pageUrl = `${siteUrl}/${service.categoryId}/${service.id}/`;
+
+// SEO-оптимизированные title и description
+const seoKeywords = [
+  `курсы пополнения ${service.name}`,
+  `сравнить цены ${service.name}`,
+  `лучший курс ${service.name}`,
+  `купить ${service.name} дешево`
+];
+const title = `Курсы пополнения ${service.name} — сравнение цен | PayCompass`;
+const description = `Сравните курсы пополнения ${service.name} от ${service._providerCount || 'многих'} провайдеров. Найдите лучшую цену и сэкономьте до 30%. Актуальные данные на ${new Date().toLocaleDateString('ru-RU')}.`;
+
 ---
 <Layout title={title} description={description}>
+  <!-- JSON-LD для страницы сервиса -->
+  <script type="application/ld+json">
+  {JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": title,
+    "description": description,
+    "url": pageUrl,
+    "inLanguage": "ru",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Главная", "item": siteUrl },
+        { "@type": "ListItem", "position": 2, "name": service.categoryName, "item": `${siteUrl}/${service.categoryId}/` },
+        { "@type": "ListItem", "position": 3, "name": service.name, "item": pageUrl }
+      ]
+    }
+  })}
+  </script>
   <style>
     .page-header {
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
     }
 
     .page-header h1 {
       margin-bottom: 0.375rem;
     }
 
+    /* ===== BREADCRUMB ===== */
     .breadcrumb {
       display: flex;
       align-items: center;
       gap: 0.375rem;
       font-size: 0.8125rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.875rem;
     }
 
     .breadcrumb a {
@@ -51,12 +82,12 @@ const description = `Лучшие курсы платежей для ${service.n
     }
 
     .breadcrumb a:hover {
-      color: var(--color-primary-light);
+      color: var(--color-amber);
     }
 
     .breadcrumb-sep {
       color: var(--color-text-faint);
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
     }
 
     .breadcrumb-current {
@@ -64,56 +95,72 @@ const description = `Лучшие курсы платежей для ${service.n
       font-weight: 500;
     }
 
+    /* ===== REGION SECTION ===== */
     .region-section {
       margin-bottom: 2rem;
     }
 
     .region-header {
-      margin-bottom: 1.25rem;
+      margin-bottom: 0.875rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border);
     }
 
     .region-header h2 {
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      font-size: 1.0625rem;
       margin-bottom: 0.25rem;
     }
 
     .region-meta {
       font-size: 0.8125rem;
       color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 0.25rem;
     }
 
+    /* ===== DENOM BLOCK ===== */
     .denom-block {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
     }
 
     .denom-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.625rem;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.375rem;
     }
 
     .denom-title {
-      font-size: 1rem;
+      font-family: var(--font-display);
+      font-size: 0.9375rem;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 0.625rem;
+      gap: 0.5rem;
     }
 
     .best-hint {
-      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
       color: var(--color-success);
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 0.375rem;
+      gap: 0.25rem;
+      padding: 0.1875rem 0.5rem;
+      background: var(--color-success-bg);
+      border-radius: 100px;
+      border: 1px solid rgba(20, 184, 166, 0.15);
     }
 
+    /* ===== TABLE WRAPPER ===== */
     .price-table-wrapper {
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
@@ -122,22 +169,24 @@ const description = `Лучшие курсы платежей для ${service.n
     }
 
     .price-table {
-        margin-top: 0;
+      margin-top: 0;
     }
 
     .price-table th {
-      background: var(--color-bg-elevated);
-      padding: 0.625rem 1rem;
+      background: var(--color-night-elevated);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.625rem;
     }
 
     .price-table td {
-      padding: 0.625rem 1rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
     }
 
     .provider-cell {
       display: flex;
       align-items: center;
-      gap: 0.625rem;
+      gap: 0.5rem;
     }
 
     .provider-name {
@@ -148,26 +197,53 @@ const description = `Лучшие курсы платежей для ${service.n
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
-      font-size: 0.6875rem;
-      font-weight: 600;
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      font-weight: 500;
       color: var(--color-success);
       background: var(--color-success-bg);
-      padding: 0.125rem 0.5rem;
+      padding: 0.125rem 0.375rem;
       border-radius: 100px;
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(20, 184, 166, 0.2);
     }
 
     .price-cell {
-      font-weight: 700;
+      font-weight: 600;
       font-family: var(--font-mono);
-      font-size: 0.9375rem;
-      letter-spacing: -0.02em;
+      font-size: 0.875rem;
+      letter-spacing: -0.01em;
     }
 
     .take-cell {
       font-family: var(--font-mono);
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       color: var(--color-text-muted);
+    }
+
+    .rate-cell {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .diff-cell {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .diff-best {
+      color: var(--color-text-muted);
+    }
+
+    .diff-worse {
+      color: #f87171;
+    }
+
+    .medal-emoji {
+      margin-right: 0.25rem;
+      font-size: 1rem;
     }
 
     .action-cell {
@@ -178,28 +254,21 @@ const description = `Лучшие курсы платежей для ${service.n
       display: inline-flex;
       align-items: center;
       gap: 0.375rem;
-      padding: 0.5rem 1rem;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-      color: white;
+      padding: 0.4375rem 0.875rem;
+      background: var(--color-amber);
+      color: var(--color-night);
       border-radius: var(--radius-sm);
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       font-weight: 600;
       text-decoration: none;
       transition: all var(--transition-fast);
-      box-shadow: 0 2px 8px rgba(109, 40, 217, 0.25);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
     }
 
     .btn-go:hover {
-      box-shadow: 0 4px 16px rgba(109, 40, 217, 0.45);
+      background: var(--color-amber-dim);
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
       transform: translateY(-1px);
-    }
-
-    .btn-go svg {
-      transition: transform var(--transition-fast);
-    }
-
-    .btn-go:hover svg {
-      transform: translateX(2px);
     }
 
     .row-best {
@@ -207,22 +276,81 @@ const description = `Лучшие курсы платежей для ${service.n
     }
 
     .row-best:hover {
-      background: rgba(16, 185, 129, 0.15) !important;
+      background: rgba(20, 184, 166, 0.15) !important;
     }
 
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 640px) {
       .denom-header {
         flex-direction: column;
         align-items: flex-start;
       }
       .price-table {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
       }
       .price-table th,
       .price-table td {
-        padding: 0.5rem 0.625rem;
+        padding: 0.375rem 0.5rem;
+      }
+      .btn-go {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.6875rem;
       }
     }
+
+  /* ===== UPDATE INFO ===== */
+    .update-info {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+
+    /* ===== SEO CONTENT ===== */
+    .seo-content {
+      margin-bottom: 2rem;
+      padding: 1.25rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+
+    .seo-content h2 {
+      font-size: 1.0625rem;
+      margin-bottom: 0.625rem;
+      margin-top: 1rem;
+    }
+
+    .seo-content h2:first-child {
+      margin-top: 0;
+    }
+
+    .seo-content p {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .seo-content ol {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      padding-left: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .seo-content ol li {
+      margin-bottom: 0.375rem;
+    }
+
+
   </style>
 
   <div>
@@ -237,7 +365,7 @@ const description = `Лучшие курсы платежей для ${service.n
     <div class="breadcrumb">
       <a href={`/${service.categoryId}/`}>{service.categoryName}</a>
       <span class="breadcrumb-sep">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="m9 18 6-6-6-6"/>
         </svg>
       </span>
@@ -251,7 +379,26 @@ const description = `Лучшие курсы платежей для ${service.n
       </p>
     </div>
 
-    {service.regions.map((region) => (
+    {service.regions.map((region) => {
+      // Глобальный расчёт курса для всех topups в регионе
+      let globalBestRate: number | null = null;
+      let globalWorstRate: number | null = null;
+
+      if (region.type === 'topups' && region.topups && region.topups.length > 0) {
+        const allRates = region.topups.flatMap(t =>
+          t.providers.filter(p => p.take > 0).map(p => p.price / p.take)
+        );
+        if (allRates.length > 0) {
+          globalBestRate = Math.min(...allRates);
+          globalWorstRate = Math.max(...allRates);
+        }
+      }
+
+      const globalSavingsPercent = globalBestRate != null && globalWorstRate != null && globalBestRate > 0
+        ? ((globalWorstRate - globalBestRate) / globalBestRate * 100)
+        : 0;
+
+      return (
       <div class="region-section">
         <div class="region-header">
           <h2>
@@ -262,13 +409,45 @@ const description = `Лучшие курсы платежей для ${service.n
             Оплата: <strong>{region.payCurrency}</strong>
             {region.type === 'topups' && ' · Пополнение'}
             {region.type === 'vouchers' && ' · Ваучеры'}
+            {globalSavingsPercent > 0 && (
+              <span class="best-hint" style="margin-left: 0.5rem">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Экономия до {globalSavingsPercent.toFixed(0)}%
+              </span>
+            )}
           </div>
         </div>
 
         {region.type === 'topups' && region.topups && region.topups.length > 0 && (
           region.topups.map((topup) => {
-            const allPrices = topup.providers.map(p => ({ name: p.name, price: p.price }));
-            const best = findBestProvider(allPrices);
+            // Рассчитываем курс как цена / получаете для каждого провайдера
+            const providersWithRate = topup.providers.map(p => {
+              const rate = p.take > 0 ? p.price / p.take : null;
+              return { ...p, calculatedRate: rate };
+            });
+
+            // Находим лучший курс (меньше = лучше)
+            const bestRate = Math.min(...providersWithRate.map(p => p.calculatedRate!).filter(r => r != null));
+
+            // Сортируем по курсу (лучший выше)
+            const sortedProviders = [...providersWithRate].sort((a, b) => {
+              if (a.calculatedRate == null) return 1;
+              if (b.calculatedRate == null) return -1;
+              return a.calculatedRate - b.calculatedRate;
+            });
+
+            // Определяем позицию и разницу для каждого провайдера
+            const providersWithRank = sortedProviders.map((p, idx) => {
+              const diffPercent = p.calculatedRate != null && bestRate > 0
+                ? ((p.calculatedRate - bestRate) / bestRate * 100)
+                : 0;
+              return { ...p, rank: idx + 1, diffPercent };
+            });
+
+            // Лучший провайдер для бейджа
+            const bestProvider = providersWithRank[0];
 
             return (
               <div class="denom-block">
@@ -276,28 +455,23 @@ const description = `Лучшие курсы платежей для ${service.n
                   <h3 class="denom-title">
                     Пополнение {topup.currency}
                   </h3>
-                  {best && best.savingsPercent > 0 && (
-                    <span class="best-hint">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                      </svg>
-                      Лучшая цена: {best.name} (экономия до {best.savingsPercent.toFixed(1)}%)
-                    </span>
-                  )}
                 </div>
                 <div class="price-table-wrapper">
                   <table class="price-table">
                     <thead>
                       <tr>
                         <th>Провайдер</th>
+                        <th>Курс</th>
+                        <th>Разница</th>
                         <th>Получаете</th>
                         <th>Цена ({region.payCurrency})</th>
                         <th style="text-align: right">Действие</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {topup.providers.map((provider) => {
-                        const isBest = best && best.name === provider.name;
+                      {providersWithRank.map((provider: any) => {
+                        const isBest = provider.rank === 1;
+                        const medal = provider.rank === 1 ? '🥇' : provider.rank === 2 ? '🥈' : provider.rank === 3 ? '🥉' : '';
                         return (
                           <tr class={isBest ? 'row-best' : ''}>
                             <td>
@@ -305,9 +479,16 @@ const description = `Лучшие курсы платежей для ${service.n
                                 {provider.logo && (
                                   <img src={provider.logo} alt={provider.name} class="provider-logo" loading="lazy" />
                                 )}
-                                <span class="provider-name">{provider.name}</span>
+                                <span class="provider-name">
+                                  {providersWithRank.length > 1 && medal && <span class="medal-emoji">{medal}</span>}
+                                  {provider.name}
+                                </span>
                                 {isBest && <span class="best-badge">лучший</span>}
                               </div>
+                            </td>
+                            <td class="rate-cell">{provider.calculatedRate != null ? provider.calculatedRate.toFixed(4) : '—'}</td>
+                            <td class={`diff-cell ${isBest ? 'diff-best' : 'diff-worse'}`}>
+                              {isBest ? '—' : `+${provider.diffPercent.toFixed(1)}%`}
                             </td>
                             <td class="take-cell">{provider.take > 0 ? `${provider.take} ${topup.currency}` : '—'}</td>
                             <td class="price-cell">{provider.price.toFixed(2)}</td>
@@ -319,7 +500,7 @@ const description = `Лучшие курсы платежей для ${service.n
                                 class="btn-go"
                               >
                                 Перейти
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                   <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                                 </svg>
                               </a>
@@ -344,14 +525,14 @@ const description = `Лучшие курсы платежей для ${service.n
               <div class="denom-block">
                 <div class="denom-header">
                   <h3 class="denom-title">
-                    Ваучер: {voucher.name}
+                    {voucher.name}
                   </h3>
                   {best && best.savingsPercent > 0 && (
                     <span class="best-hint">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                       </svg>
-                      Лучшая цена: {best.name} (экономия до {best.savingsPercent.toFixed(1)}%)
+                      Экономия до {best.savingsPercent.toFixed(0)}%
                     </span>
                   )}
                 </div>
@@ -387,7 +568,7 @@ const description = `Лучшие курсы платежей для ${service.n
                                 class="btn-go"
                               >
                                 Перейти
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                   <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                                 </svg>
                               </a>
@@ -403,20 +584,44 @@ const description = `Лучшие курсы платежей для ${service.n
           })
         )}
       </div>
-    ))}
+    );
+  })}
 
-    <!-- Structured data -->
+    <!-- SEO: Описательный контент -->
+    <article class="seo-content">
+      <h2>Курсы пополнения ${service.name} — сравнение цен провайдеров</h2>
+      <p>На этой странице вы можете сравнить курсы пополнения <strong>${service.name}</strong> от различных провайдеров. Мы агрегируем данные в реальном времени, чтобы вы всегда видели актуальные цены и могли выбрать наиболее выгодный вариант.</p>
+
+      <h2>Что такое курс пополнения?</h2>
+      <p>Курс пополнения — это соотношение, по которому вы можете приобрести валюту или кредиты для ${service.name}. Разные провайдеры предлагают разные курсы, и разница может быть существенной.</p>
+
+      <h2>Как выбрать лучший курс?</h2>
+      <ol>
+        <li>Сравните курсы всех доступных провайдеров в таблице выше</li>
+        <li>Обратите внимание на рейтинг и отзывы провайдера</li>
+        <li>Учтите скорость пополнения и удобство оплаты</li>
+        <li>Выберите провайдера с лучшим соотношением цены и качества</li>
+      </ol>
+    </article>
+
+    <!-- JSON-LD: Service -->
     <script type="application/ld+json" define:vars={{ s: service }}>
     {
       "@context": "https://schema.org",
       "@type": "Service",
-      "name": s.name,
-      "description": `Курсы пополнения ${s.name}`,
-      "category": s.categoryName,
+      "name": `Курсы пополнения ${s.name}`,
+      "description": `Сравнение курсов пополнения ${s.name} от ${s._providerCount || 'многих'} провайдеров`,
+      "provider": {
+        "@type": "Organization",
+        "name": "PayCompass",
+        "url": "${siteUrl}"
+      },
       "areaServed": {
         "@type": "Country",
         "name": "Russia"
-      }
+      },
+      "serviceType": "Сравнение курсов пополнения",
+      "category": s.categoryName
     }
     </script>
   </div>
