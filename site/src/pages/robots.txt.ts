@@ -4,7 +4,7 @@ const robotsTxt = `
 User-agent: *
 Allow: /
 
-Sitemap: ${new URL('sitemap.xml', import.meta.env.SITE || 'https://rust-guild.github.io').href}
+Sitemap: ${new URL('sitemap.xml', import.meta.env.SITE || 'https://rust-guild.github.io/pay-compass').href}
 `.trim();
 
 export const GET: APIRoute = () => {
