@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { parseAllData } from '../utils/data';
 
-const SITE_URL = import.meta.env.SITE || 'https://paycompass.ru';
+const SITE_URL = import.meta.env.SITE || 'https://rust-guild.github.io';
 
 export const GET: APIRoute = () => {
   const { categories } = parseAllData();

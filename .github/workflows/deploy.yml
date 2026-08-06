@@ -1,4 +1,5 @@
 # Deploy Astro site to GitHub Pages
+# Triggered on push to main branch
 name: Deploy to GitHub Pages
 
 on:
