@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { parseAllData } from '../utils/data';
 
-const SITE_URL = import.meta.env.SITE || 'https://rust-guild.github.io/pay-compass';
+const SITE_URL = (import.meta.env.SITE || 'https://rust-guild.github.io').replace(/\/$/, '');
+const BASE = import.meta.env.BASE_URL || '/pay-compass';
 
 export const GET: APIRoute = () => {
   const { categories } = parseAllData();
@@ -11,7 +12,7 @@ export const GET: APIRoute = () => {
 
   // Главная страница
   xml += `  <url>\n`;
-  xml += `    <loc>${SITE_URL}/</loc>\n`;
+  xml += `    <loc>${SITE_URL}${BASE}/</loc>\n`;
   xml += `    <changefreq>daily</changefreq>\n`;
   xml += `    <priority>1.0</priority>\n`;
   xml += `  </url>\n`;
@@ -19,7 +20,7 @@ export const GET: APIRoute = () => {
   // Страницы категорий
   for (const category of categories) {
     xml += `  <url>\n`;
-    xml += `    <loc>${SITE_URL}/${category.id}/</loc>\n`;
+    xml += `    <loc>${SITE_URL}${BASE}/${category.id}/</loc>\n`;
     xml += `    <changefreq>daily</changefreq>\n`;
     xml += `    <priority>0.9</priority>\n`;
     xml += `  </url>\n`;
@@ -27,7 +28,7 @@ export const GET: APIRoute = () => {
     // Страницы сервисов
     for (const service of category.services) {
       xml += `  <url>\n`;
-      xml += `    <loc>${SITE_URL}/${category.id}/${service.id}/</loc>\n`;
+      xml += `    <loc>${SITE_URL}${BASE}/${category.id}/${service.id}/</loc>\n`;
       xml += `    <changefreq>daily</changefreq>\n`;
       xml += `    <priority>0.8</priority>\n`;
       xml += `  </url>\n`;

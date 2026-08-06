@@ -1,10 +1,13 @@
 import type { APIRoute } from 'astro';
 
+const SITE_URL = (import.meta.env.SITE || 'https://rust-guild.github.io').replace(/\/$/, '');
+const BASE = import.meta.env.BASE_URL || '/pay-compass';
+
 const robotsTxt = `
 User-agent: *
 Allow: /
 
-Sitemap: ${new URL('sitemap.xml', import.meta.env.SITE || 'https://rust-guild.github.io/pay-compass').href}
+Sitemap: ${SITE_URL}${BASE}/sitemap.xml
 `.trim();
 
 export const GET: APIRoute = () => {
