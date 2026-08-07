@@ -116,7 +116,7 @@ const pageUrl = `${siteUrl}${base}/${category.id}/`;
   </style>
 
   <div>
-    <a href={base} class="link-back">
+    <a href="/" class="link-back">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
       </svg>
@@ -162,7 +162,7 @@ const pageUrl = `${siteUrl}${base}/${category.id}/`;
 
         return (
           <div>
-            <a href={`${base}/${category.id}/${service.id}/`} class="service-link">
+            <a href={`/${category.id}/${service.id}/`} class="service-link">
               <div class="card">
                 <h2 class="service-title">{service.name}</h2>
 

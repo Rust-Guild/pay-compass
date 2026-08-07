@@ -540,11 +540,11 @@ const canonicalUrl = `${siteUrl}${base}${currentPath.replace(base, '') || ''}`;
             </a>
           </div>
           <nav>
-            <a href={base} class={currentPath === base || currentPath === '/' ? 'active' : ''}>Все</a>
+            <a href="/" class={currentPath === '/' ? 'active' : ''}>Все</a>
             {categories.map((cat) => (
               <a
-                href={`${base}/${cat.id}/`}
-                class={currentPath.startsWith(`${base}/${cat.id}/`) ? 'active' : ''}
+                href={`/${cat.id}/`}
+                class={currentPath.startsWith(`/${cat.id}/`) ? 'active' : ''}
               >
                 {cat.name}
               </a>
