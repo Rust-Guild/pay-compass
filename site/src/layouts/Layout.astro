@@ -10,7 +10,7 @@ const { title, description = "Сравниваем курсы платежей �
 const { categories } = parseAllData();
 const currentPath = Astro.url.pathname;
 const base = import.meta.env.BASE_URL || '';
-const siteUrl = import.meta.env.SITE || 'https://pay-compass.rust-guild.ru';
+const siteUrl = import.meta.env.SITE || 'https://paycompass.ru';
 const canonicalUrl = `${siteUrl}${base}${currentPath.replace(base, '') || ''}`;
 ---
 <!doctype html>

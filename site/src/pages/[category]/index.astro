@@ -21,7 +21,7 @@ const { category } = Astro.props as { category: CategoryData };
 const base = import.meta.env.BASE_URL || '';
 const title = `${category.name} — курсы платежей | PayCompass`;
 const description = `Лучшие курсы для ${category.name}: ${category.services.map(s => s.name).join(', ')}. Сравнивайте и экономьте!`;
-const siteUrl = import.meta.env.SITE || 'https://pay-compass.rust-guild.ru';
+const siteUrl = import.meta.env.SITE || 'https://paycompass.ru';
 const pageUrl = `${siteUrl}${base}/${category.id}/`;
 ---
 <Layout title={title} description={description}>

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 
-const SITE_URL = (import.meta.env.SITE || 'https://rust-guild.github.io').replace(/\/$/, '');
-const BASE = import.meta.env.BASE_URL || '/pay-compass';
+const SITE_URL = (import.meta.env.SITE || 'https://paycompass.ru').replace(/\/$/, '');
+const BASE = import.meta.env.BASE_URL || '/';
 
 const robotsTxt = `
 User-agent: *
