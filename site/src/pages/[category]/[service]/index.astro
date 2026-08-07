@@ -120,7 +120,7 @@ const description = `Сравните курсы пополнения ${service.
       color: var(--color-text-muted);
       display: flex;
       align-items: center;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       gap: 0.25rem;
     }
 
@@ -165,12 +165,14 @@ const description = `Сравните курсы пополнения ${service.
     .price-table-wrapper {
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
-      overflow: hidden;
       background: var(--color-surface);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .price-table {
       margin-top: 0;
+      min-width: 580px;
     }
 
     .price-table th {
@@ -288,14 +290,19 @@ const description = `Сравните курсы пополнения ${service.
       }
       .price-table {
         font-size: 0.75rem;
+        min-width: 520px;
       }
       .price-table th,
       .price-table td {
         padding: 0.375rem 0.5rem;
+        white-space: nowrap;
       }
       .btn-go {
         padding: 0.375rem 0.625rem;
         font-size: 0.6875rem;
+      }
+      .region-meta {
+        font-size: 0.75rem;
       }
     }
 
