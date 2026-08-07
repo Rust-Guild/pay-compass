@@ -1,0 +1,424 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { parseTransferData } from '../../../utils/data';
+
+const base = import.meta.env.BASE_URL || '';
+
+export async function getStaticPaths() {
+  const { countries } = parseTransferData();
+  return countries.map((country) => ({
+    params: { country: country.id },
+    props: { country },
+  }));
+}
+
+const { country } = Astro.props;
+
+const title = `${country.flag} Переводы в ${country.name} — сравнение курсов | PayCompass`;
+const description = `Сравните курсы переводов в ${country.name}: ${country.methods.map(m => m.name).join(', ')}. Найдите лучшую цену!`;
+const siteUrl = import.meta.env.SITE || 'https://paycompass.ru';
+const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
+---
+<Layout title={title} description={description}>
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": title,
+    "description": description,
+    "url": pageUrl,
+    "inLanguage": "ru"
+  })}
+  </script>
+
+  <style>
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      margin-bottom: 0.375rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .country-flag-large {
+      font-size: 1.5rem;
+    }
+
+    .methods-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .method-block {
+      margin-bottom: 0.5rem;
+    }
+
+    .method-title {
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .currency-badge {
+      font-size: 0.75rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+
+    /* ===== TABLE WRAPPER ===== */
+    .price-table-wrapper {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-surface);
+    }
+
+    .provider-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.8125rem;
+    }
+
+    .provider-table th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-night-elevated);
+    }
+
+    .provider-table th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+    .provider-table th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+
+    .provider-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+
+    .provider-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .provider-table tbody tr:hover {
+      background: var(--color-night-subtle);
+    }
+
+    .provider-info {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+
+    .provider-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--color-border);
+    }
+
+    .provider-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    .rate-value {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .best-rate {
+      color: var(--color-success);
+    }
+
+    .worst-rate {
+      color: var(--color-text-muted);
+    }
+
+    .best-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      font-weight: 500;
+      color: var(--color-success);
+      background: var(--color-success-bg);
+      padding: 0.125rem 0.375rem;
+      border-radius: 100px;
+      border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+
+    .btn-go {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.4375rem 0.875rem;
+      background: var(--color-amber);
+      color: var(--color-night);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+    }
+
+    .btn-go:hover {
+      background: var(--color-amber-dim);
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .savings-indicator {
+      font-size: 0.75rem;
+      color: var(--color-success);
+      font-weight: 500;
+    }
+
+    .row-best {
+      background: var(--color-success-bg) !important;
+    }
+
+    .row-best:hover {
+      background: rgba(20, 184, 166, 0.15) !important;
+    }
+
+    .action-cell {
+      text-align: right;
+    }
+
+    /* ===== RESPONSIVE: TABLE → CARDS ===== */
+    @media (max-width: 640px) {
+      .denom-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      /* Скрываем заголовки таблицы */
+      .provider-table thead {
+        display: none;
+      }
+
+      /* Трансформируем таблицу в карточки */
+      .provider-table,
+      .provider-table tbody,
+      .provider-table tr,
+      .provider-table td {
+        display: block;
+      }
+
+      .provider-table {
+        font-size: 0.8125rem;
+      }
+
+      .price-table-wrapper {
+        overflow: visible;
+        border: none;
+        background: transparent;
+      }
+
+      /* Каждая строка = карточка */
+      .provider-table tr {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        margin-bottom: 0.75rem;
+        padding: 0.75rem;
+      }
+
+      .provider-table tr:last-child {
+        margin-bottom: 0;
+      }
+
+      .provider-table tr.row-best {
+        border-color: rgba(20, 184, 166, 0.3);
+        background: var(--color-success-bg);
+      }
+
+      /* Ячейки внутри карточки */
+      .provider-table td {
+        padding: 0.25rem 0;
+        border-bottom: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+      }
+
+      /* Подписи колонок через data-атрибуты */
+      .provider-table td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        color: var(--color-text-muted);
+        font-size: 0.75rem;
+        text-align: left;
+        flex-shrink: 0;
+        margin-right: 1rem;
+      }
+
+      /* Первая ячейка (провайдер) = заголовок карточки */
+      .provider-table td:first-child {
+        display: block;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid var(--color-border);
+        text-align: left;
+      }
+      .provider-table td:first-child::before {
+        display: none;
+      }
+
+      /* Последняя ячейка (действие) на всю ширину */
+      .action-cell {
+        text-align: left !important;
+      }
+      .action-cell::before {
+        display: none !important;
+      }
+      .action-cell .btn-go {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .provider-logo {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  </style>
+
+  <div>
+    <a href="/transfers/" class="link-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+      </svg>
+      Все переводы
+    </a>
+
+    <div class="page-header">
+      <h1>
+        <span class="country-flag-large">{country.flag}</span>
+        Переводы в {country.name}
+      </h1>
+      <p class="subtitle">
+        Сравниваем курсы — выберите лучшее предложение
+      </p>
+    </div>
+
+    <div class="methods-grid">
+      {country.methods.map((method) => {
+        // Вычисляем курсы для каждого провайдера
+        const providersWithRates = method.providers
+          .filter(p => p.take > 0)
+          .map(p => ({
+            ...p,
+            rate: p.price / p.take
+          }))
+          .sort((a, b) => a.rate - b.rate);
+
+        if (providersWithRates.length === 0) return null;
+
+        const bestRate = providersWithRates[0].rate;
+        const worstRate = providersWithRates[providersWithRates.length - 1].rate;
+        const savingsPercent = worstRate > bestRate ? ((worstRate - bestRate) / worstRate * 100) : 0;
+
+        return (
+          <div class="method-block">
+            <h2 class="method-title">
+              {method.name}
+              <span class="currency-badge">{method.payCurrency} → {method.receiveCurrency}</span>
+            </h2>
+
+            <div class="price-table-wrapper">
+              <table class="provider-table">
+                <thead>
+                  <tr>
+                    <th>Провайдер</th>
+                    <th>Курс</th>
+                    <th>Экономия</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {providersWithRates.map((provider) => {
+                    const isBest = provider.rate === bestRate;
+                    const isWorst = provider.rate === worstRate;
+                    const savings = isWorst && savingsPercent > 0 ? Math.round(savingsPercent) : 0;
+
+                    return (
+                      <tr class={isBest ? 'row-best' : ''}>
+                        <td data-label="Провайдер">
+                          <div class="provider-info">
+                            {provider.logo && (
+                              <img src={provider.logo} alt={provider.name} class="provider-logo" loading="lazy" />
+                            )}
+                            <span class="provider-name">{provider.name}</span>
+                            {isBest && <span class="best-badge">✓ лучший</span>}
+                          </div>
+                        </td>
+                        <td data-label="Курс">
+                          <span class={`rate-value ${isBest ? 'best-rate' : ''} ${isWorst && !isBest ? 'worst-rate' : ''}`}>
+                            {provider.rate.toFixed(4)}
+                          </span>
+                        </td>
+                        <td data-label="Экономия">
+                          {isBest && savingsPercent > 0 ? (
+                            <span class="savings-indicator">
+                              ✓ Лучший курс
+                            </span>
+                          ) : null}
+                        </td>
+                        <td class="action-cell">
+                          <a href={provider.url} target="_blank" rel="noopener noreferrer" class="btn-go">
+                            Перейти
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                            </svg>
+                          </a>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Structured data -->
+    <script type="application/ld+json" define:vars={{ c: country, m: country.methods }}>
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Переводы в ${c.name}",
+      "description": `Сравнение курсов переводов в ${c.name}: ${m.map(mt => mt.name).join(', ')}`,
+      "url": "${pageUrl}",
+      "inLanguage": "ru"
+    }
+    </script>
+  </div>
+</Layout>

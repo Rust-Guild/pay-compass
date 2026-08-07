@@ -58,6 +58,34 @@ export interface ServiceData {
   _maxSavings?: number;
 }
 
+export interface TransferMethodProvider {
+  key: string;
+  name: string;
+  logo: string;
+  price: number;
+  url: string;
+  take: number;
+  rate?: number;
+}
+
+export interface TransferMethodData {
+  id: string;
+  name: string;
+  countryId: string;
+  countryName: string;
+  payCurrency: string;
+  receiveCurrency: string;
+  providers: TransferMethodProvider[];
+  _maxSavings?: number;
+}
+
+export interface TransferCountryData {
+  id: string;
+  name: string;
+  flag: string;
+  methods: TransferMethodData[];
+}
+
 export interface CategoryData {
   id: string;
   name: string;
@@ -72,6 +100,31 @@ const CATEGORY_NAMES: Record<string, string> = {
   ewallets: 'Электронные кошельки',
   software: 'ПО и сервисы',
   streaming: 'Стриминг',
+};
+
+// Маппинги для transfers
+export const TRANSFER_COUNTRY_NAMES: Record<string, string> = {
+  arm: 'Армения',
+  chn: 'Китай',
+  kaz: 'Казахстан',
+  uzb: 'Узбекистан',
+  geo: 'Грузия',
+  aze: 'Азербайджан',
+  kgz: 'Кыргызстан',
+  tj: 'Таджикистан',
+  tur: 'Турция',
+  ind: 'Индия',
+};
+
+const TRANSFER_METHOD_NAMES: Record<string, string> = {
+  bank_card: 'Банковская карта',
+  unionpay: 'UnionPay',
+  humo: 'Humo',
+  uzcard: 'UzCard',
+  visa: 'Visa',
+  mastercard: 'Mastercard',
+  mir: 'МИР',
+  swift: 'SWIFT',
 };
 
 const SERVICE_NAMES: Record<string, string> = {
@@ -465,4 +518,115 @@ export function findBestProvider(prices: { name: string; price: number }[]): { n
   const worst = prices.reduce((max, p) => p.price > max.price ? p : max);
   const savings = worst.price > best.price ? ((worst.price - best.price) / worst.price * 100) : 0;
   return { name: best.name, price: best.price, savingsPercent: savings };
+}
+
+// ===== TRANSFERS =====
+
+export const TRANSFER_COUNTRY_FLAGS: Record<string, string> = {
+  arm: '🇦🇲',
+  chn: '🇨🇳',
+  kaz: '🇰🇿',
+  uzb: '🇺🇿',
+  geo: '🇬🇪',
+  aze: '🇦🇿',
+  kgz: '🇰🇬',
+  tj: '🇹🇯',
+  tur: '🇹🇷',
+  ind: '🇮🇳',
+};
+
+function formatTransferCountryName(id: string): string {
+  return TRANSFER_COUNTRY_NAMES[id] || id;
+}
+
+function formatTransferMethodName(id: string): string {
+  return TRANSFER_METHOD_NAMES[id] || id.replace(/[_-]/g, ' ');
+}
+
+export function parseTransferData(): { countries: TransferCountryData[]; providers: Record<string, ServiceProvider> } {
+  const data = readJsonFile();
+  const providers = data.providers as Record<string, ServiceProvider>;
+  const transfers = data.transfers;
+
+  if (!transfers || typeof transfers !== 'object') {
+    return { countries: [], providers };
+  }
+
+  const countries: TransferCountryData[] = [];
+
+  for (const [countryId, countryValue] of Object.entries(transfers)) {
+    if (!countryValue || typeof countryValue !== 'object') continue;
+
+    const country: TransferCountryData = {
+      id: countryId,
+      name: formatTransferCountryName(countryId),
+      flag: TRANSFER_COUNTRY_FLAGS[countryId] || '🌍',
+      methods: [],
+    };
+
+    for (const [methodId, methodValue] of Object.entries(countryValue)) {
+      if (!methodValue || typeof methodValue !== 'object') continue;
+
+      for (const [payCurrency, payCurrencyValue] of Object.entries(methodValue)) {
+        if (!payCurrencyValue || typeof payCurrencyValue !== 'object') continue;
+
+        for (const [receiveCurrency, receiveValue] of Object.entries(payCurrencyValue)) {
+          if (!receiveValue || typeof receiveValue !== 'object') continue;
+
+          const method: TransferMethodData = {
+            id: methodId,
+            name: formatTransferMethodName(methodId),
+            countryId,
+            countryName: country.name,
+            payCurrency,
+            receiveCurrency,
+            providers: [],
+          };
+
+          for (const [provKey, provValue] of Object.entries(receiveValue)) {
+            if (!provValue || typeof provValue !== 'object' || !('url' in provValue)) continue;
+            const provInfo = providers[provKey] || { name: provKey, logo: '' };
+            method.providers.push({
+              key: provKey,
+              name: provInfo.name,
+              logo: provInfo.logo,
+              price: (provValue as any).give,
+              url: (provValue as any).url,
+              take: (provValue as any).take || 0,
+              rate: (provValue as any).rate,
+            });
+          }
+
+          if (method.providers.length > 0) {
+            country.methods.push(method);
+          }
+        }
+      }
+    }
+
+    if (country.methods.length > 0) {
+      countries.push(country);
+    }
+  }
+
+  return { countries, providers };
+}
+
+export function parseTransferDataForHome(): { countries: TransferCountryData[]; providers: Record<string, ServiceProvider> } {
+  const result = parseTransferData();
+
+  for (const country of result.countries) {
+    for (const method of country.methods) {
+      if (method.providers.length < 2) continue;
+      const rates = method.providers.filter(p => p.take > 0).map(p => p.price / p.take);
+      if (rates.length < 2) continue;
+      const min = Math.min(...rates);
+      const max = Math.max(...rates);
+      if (max > min) {
+        method._maxSavings = ((max - min) / min) * 100;
+      }
+    }
+  }
+
+  return result;
 }

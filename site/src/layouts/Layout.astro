@@ -6,7 +6,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Сравниваем курсы платежей и переводов для игровых и цифровых сервисов" } = Astro.props;
+const { title, description = "Сравниваем курсы пополнений, ваучеров и международных переводов" } = Astro.props;
 const { categories } = parseAllData();
 const currentPath = Astro.url.pathname;
 const base = import.meta.env.BASE_URL || '';
@@ -50,7 +50,7 @@ const canonicalUrl = `${siteUrl}${base}${currentPath.replace(base, '') || ''}`;
         "@type": "WebSite",
         "name": "PayCompass",
         "url": `${siteUrl}${base}`,
-        "description": "Сравнение курсов платежей и переводов для игровых и цифровых сервисов"
+        "description": "Сравнение курсов пополнений, ваучеров и международных переводов"
       }
     })}
     </script>
@@ -576,6 +576,12 @@ const canonicalUrl = `${siteUrl}${base}${currentPath.replace(base, '') || ''}`;
                 {cat.name}
               </a>
             ))}
+            <a
+              href="/transfers/"
+              class={currentPath.startsWith('/transfers/') ? 'active' : ''}
+            >
+              Переводы
+            </a>
           </nav>
         </div>
       </div>

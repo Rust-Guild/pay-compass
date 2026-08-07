@@ -1,9 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { parseAllDataForHome, getRegionFlag } from '../utils/data';
+import { parseAllDataForHome, parseTransferDataForHome, getRegionFlag } from '../utils/data';
 
 const base = import.meta.env.BASE_URL || '';
-const { categories } = parseAllDataForHome();
+const { categories, providers } = parseAllDataForHome();
+const { countries: transferCountries } = parseTransferDataForHome();
+
+// Динамический расчёт статистики
+const totalServices = categories.reduce((sum, cat) => sum + cat.services.length, 0);
+const totalProviders = Object.keys(providers).length;
+const totalRegions = categories.reduce((sum, cat) => {
+  return sum + cat.services.reduce((s, svc) => s + svc.regions.length, 0);
+}, 0) + transferCountries.length;
 
 function pluralizeRegions(n: number): string {
   const abs = Math.abs(n) % 100;
@@ -15,8 +23,8 @@ function pluralizeRegions(n: number): string {
 }
 ---
 <Layout 
-  title="PayCompass — Сравни курсы, плати меньше" 
-  description="Сравниваем курсы пополнения и ваучеров для Steam, PlayStation, App Store и других сервисов. Найди лучшую цену за секунду."
+  title="PayCompass — Сравни курсы, плати меньше"
+  description="Сравниваем курсы пополнения, ваучеров и международных переводов. Steam, PlayStation, App Store, переводы в Армению, Казахстан, Грузию и другие страны. Найди лучшую цену за секунду."
 >
   <style>
     /* ===== HERO ===== */
@@ -354,7 +362,7 @@ function pluralizeRegions(n: number): string {
         Плати по<br /><span class="accent">лучшей цене</span>
       </h1>
       <p class="hero-subtitle">
-        Сравниваем курсы пополнения и ваучеров для игровых и цифровых сервисов — выбери лучшее предложение
+        Сравниваем курсы пополнения, ваучеров и международных переводов — выбери лучшее предложение
       </p>
     </section>
 
@@ -441,6 +449,71 @@ function pluralizeRegions(n: number): string {
       ))}
     </section>
 
+    <!-- Transfers Section -->
+    {transferCountries.length > 0 && (
+      <>
+        <div class="divider"></div>
+
+        <section class="section" id="transfersList">
+          <div class="category-block" data-category="transfers">
+            <div class="category-header">
+              <h3 class="category-title">
+                Переводы
+                <span class="category-count">{transferCountries.length}</span>
+              </h3>
+              <a href={`/transfers/`} class="category-link">
+                Все
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                </svg>
+              </a>
+            </div>
+
+            <div class="services-grid">
+              {transferCountries.map((country) => {
+                // Вычисляем макс экономию по всем методам страны
+                const allSavings = country.methods.map(m => m._maxSavings).filter(s => s != null && s >= 1) as number[];
+                const maxSavings = allSavings.length > 0 ? Math.max(...allSavings) : null;
+
+                return (
+                  <a
+                    href={`/transfers/${country.id}/`}
+                    class="service-card"
+                    data-service-name={country.name.toLowerCase()}
+                  >
+                    <div class="card">
+                      <div class="service-card-header">
+                        <span class="service-name">{country.flag} {country.name}</span>
+                        <span class="badge badge--amber">
+                          {country.methods.length} {country.methods.length === 1 ? 'метод' : country.methods.length < 5 ? 'метода' : 'методов'}
+                        </span>
+                      </div>
+                      {maxSavings != null ? (
+                        <div class="savings-badge">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                          </svg>
+                          Экономия до {Math.round(maxSavings)}%
+                        </div>
+                      ) : null}
+
+                      <div class="service-regions">
+                        {country.methods.slice(0, 3).map((method) => (
+                          <span class="service-region">
+                            {method.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      </>
+    )}
+
     <div class="divider"></div>
 
     <!-- Why Us Section -->
@@ -467,20 +540,20 @@ function pluralizeRegions(n: number): string {
     <!-- Stats Bar -->
     <div class="stats-bar card">
       <div class="stat-item">
-        <span class="stat-value">50+</span>
+        <span class="stat-value">{totalServices}</span>
         <span class="stat-label">Сервисов</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">15+</span>
+        <span class="stat-value">{totalProviders}</span>
         <span class="stat-label">Провайдеров</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">30+</span>
-        <span class="stat-label">Регионов</span>
+        <span class="stat-value">{totalRegions}</span>
+        <span class="stat-label">{pluralizeRegions(totalRegions)}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">24/7</span>
-        <span class="stat-label">Актуальные курсы</span>
+        <span class="stat-value">{transferCountries.length}</span>
+        <span class="stat-label">Стран переводов</span>
       </div>
     </div>
 
@@ -494,7 +567,7 @@ function pluralizeRegions(n: number): string {
           <span class="faq-icon">+</span>
         </button>
         <div class="faq-answer">
-          <p>PayCompass — это сервис сравнения курсов пополнения и ваучеров для игровых и цифровых сервисов. Мы агрегируем данные от разных провайдеров, чтобы вы могли найти лучшую цену.</p>
+          <p>PayCompass — это сервис сравнения курсов пополнения, ваучеров и международных переводов. Мы агрегируем данные от разных провайдеров, чтобы вы могли найти лучшую цену.</p>
         </div>
       </div>
       <div class="faq-item">
@@ -538,23 +611,27 @@ function pluralizeRegions(n: number): string {
       // ===== Search =====
       const searchInput = document.getElementById('serviceSearch') as HTMLInputElement | null;
       const servicesList = document.getElementById('servicesList') as HTMLElement | null;
+      const transfersList = document.getElementById('transfersList') as HTMLElement | null;
       const emptyState = document.getElementById('emptyState') as HTMLElement | null;
       if (searchInput && servicesList && emptyState) {
-        const categoryBlocks = servicesList.querySelectorAll('.category-block') as NodeListOf<HTMLElement>;
+        const allCategoryBlocks = [
+          ...(servicesList?.querySelectorAll('.category-block') as NodeListOf<HTMLElement> || []),
+          ...(transfersList?.querySelectorAll('.category-block') as NodeListOf<HTMLElement> || []),
+        ];
 
         searchInput.addEventListener('input', (e) => {
           const target = e.target as HTMLInputElement;
           const query = target.value.toLowerCase().trim();
 
           if (!query) {
-            categoryBlocks.forEach(block => block.style.display = '');
+            allCategoryBlocks.forEach(block => block.style.display = '');
             emptyState.style.display = 'none';
             return;
           }
 
           let anyVisible = false;
 
-          categoryBlocks.forEach(block => {
+          allCategoryBlocks.forEach(block => {
             const cards = block.querySelectorAll<HTMLElement>('.service-card');
             let categoryHasMatch = false;
 
@@ -585,6 +662,7 @@ function pluralizeRegions(n: number): string {
       faqButtons.forEach(button => {
         button.addEventListener('click', () => {
           const item = button.parentElement;
+          if (!item) return;
           const isOpen = item.classList.contains('open');
 
           // Закрыть все
