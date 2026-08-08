@@ -169,11 +169,11 @@ const SERVICE_NAMES: Record<string, string> = {
   perfectum: 'Perfectum Mobile',
   global_cell: 'Globalcell (Узбекистан)',
   o_nurtelecom: 'NurTelecom (Казахстан)',
-  a_mobile_phone: 'Мобильный телефон',
+  a_mobile_phone: 'AMobile (Абхазия)',
   // ewallets
   alipay: 'Alipay',
   wechat: 'WeChat Pay',
-  a_mobile_ewallet: 'Электронный кошелёк',
+  a_mobile_ewallet: 'AMobile (Абхазия)',
   // software
   discord: 'Discord',
   app_store: 'App Store',
@@ -564,6 +564,9 @@ export function parseTransferData(): { countries: TransferCountryData[]; provide
       methods: [],
     };
 
+    // Группируем методы по methodId, объединяя провайдеров из разных receiveCurrency
+    const methodMap = new Map<string, { method: TransferMethodData; provKeys: Set<string> }>();
+
     for (const [methodId, methodValue] of Object.entries(countryValue)) {
       if (!methodValue || typeof methodValue !== 'object') continue;
 
@@ -573,20 +576,30 @@ export function parseTransferData(): { countries: TransferCountryData[]; provide
         for (const [receiveCurrency, receiveValue] of Object.entries(payCurrencyValue)) {
           if (!receiveValue || typeof receiveValue !== 'object') continue;
 
-          const method: TransferMethodData = {
-            id: methodId,
-            name: formatTransferMethodName(methodId),
-            countryId,
-            countryName: country.name,
-            payCurrency,
-            receiveCurrency,
-            providers: [],
-          };
+          let methodEntry = methodMap.get(methodId);
+          if (!methodEntry) {
+            const method: TransferMethodData = {
+              id: methodId,
+              name: formatTransferMethodName(methodId),
+              countryId,
+              countryName: country.name,
+              payCurrency,
+              receiveCurrency,
+              providers: [],
+            };
+            methodEntry = { method, provKeys: new Set() };
+            methodMap.set(methodId, methodEntry);
+          }
+
+          // Обновляем receiveCurrency последним найденным
+          methodEntry.method.receiveCurrency = receiveCurrency;
 
           for (const [provKey, provValue] of Object.entries(receiveValue)) {
             if (!provValue || typeof provValue !== 'object' || !('url' in provValue)) continue;
+            if (methodEntry.provKeys.has(provKey)) continue;
+
             const provInfo = providers[provKey] || { name: provKey, logo: '' };
-            method.providers.push({
+            methodEntry.method.providers.push({
               key: provKey,
               name: provInfo.name,
               logo: provInfo.logo,
@@ -595,12 +608,16 @@ export function parseTransferData(): { countries: TransferCountryData[]; provide
               take: (provValue as any).take || 0,
               rate: (provValue as any).rate,
             });
-          }
-
-          if (method.providers.length > 0) {
-            country.methods.push(method);
+            methodEntry.provKeys.add(provKey);
           }
         }
+      }
+    }
+
+    // Добавляем все уникальные методы
+    for (const entry of methodMap.values()) {
+      if (entry.method.providers.length > 0) {
+        country.methods.push(entry.method);
       }
     }
 

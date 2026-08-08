@@ -1,12 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { parseTransferData, type TransferCountryData } from '../../utils/data';
-import type { GetStaticPathsItem } from 'astro';
+import { parseTransferData } from '../../utils/data';
 
 const { countries } = parseTransferData();
 const base = import.meta.env.BASE_URL || '';
-const title = 'Переводы — сравнение курсов | PayCompass';
-const description = `Сравните курсы переводов в разные страны: Армения, Китай, Казахстан, Узбекистан и другие. Найдите лучшую цену!`;
+const title = 'Переводы — сравнение курсов по странам | PayCompass';
+const description = `Сравните курсы переводов по всем доступным странам. Найдите лучшую цену для отправки денег!`;
 const siteUrl = import.meta.env.SITE || 'https://paycompass.ru';
 const pageUrl = `${siteUrl}${base}transfers/`;
 ---
@@ -29,6 +28,7 @@ const pageUrl = `${siteUrl}${base}transfers/`;
     }))
   })}
   </script>
+
   <style>
     .page-header {
       margin-bottom: 2rem;
@@ -70,7 +70,7 @@ const pageUrl = `${siteUrl}${base}transfers/`;
       font-size: 1.25rem;
     }
 
-    .method-list {
+    .methods-list {
       display: flex;
       flex-direction: column;
       gap: 0.375rem;
@@ -83,6 +83,11 @@ const pageUrl = `${siteUrl}${base}transfers/`;
       align-items: center;
       gap: 0.375rem;
       padding: 0.25rem 0;
+    }
+
+    .method-arrow {
+      color: var(--color-text-faint);
+      font-size: 0.75rem;
     }
 
     .provider-icons {
@@ -117,7 +122,7 @@ const pageUrl = `${siteUrl}${base}transfers/`;
     </a>
 
     <div class="page-header">
-      <h1>Переводы</h1>
+      <h1>Переводы по странам</h1>
       <p class="subtitle">
         Сравниваем курсы переводов — выберите лучшее предложение для каждой страны
       </p>
@@ -131,8 +136,8 @@ const pageUrl = `${siteUrl}${base}transfers/`;
         for (const method of country.methods) {
           const provMap: any = {};
           for (const provider of method.providers) {
-            if (!provMap[provider.key]) {
-              provMap[provider.key] = { logo: provider.logo, name: provider.name };
+            if (!provMap[provider.name]) {
+              provMap[provider.name] = { logo: provider.logo, name: provider.name };
             }
           }
           methodProviders[method.name] = Object.values(provMap);
@@ -147,7 +152,7 @@ const pageUrl = `${siteUrl}${base}transfers/`;
                   {country.name}
                 </h2>
 
-                <div class="method-list">
+                <div class="methods-list">
                   {country.methods.map((method) => {
                     const providers = methodProviders[method.name] || [];
                     const topProviders = providers.slice(0, 3);
@@ -155,6 +160,8 @@ const pageUrl = `${siteUrl}${base}transfers/`;
                       <div class="method-item">
                         <span>{method.name}</span>
                         <span class="badge">оплата {method.payCurrency}</span>
+                        <span class="method-arrow">→</span>
+                        <span>{method.receiveCurrency}</span>
                         {topProviders.length > 0 && (
                           <div class="provider-icons">
                             {topProviders.map((p: any) => (
@@ -178,10 +185,15 @@ const pageUrl = `${siteUrl}${base}transfers/`;
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "name": "Переводы — сравнение курсов",
-      "description": `Сравнение курсов переводов в ${c.length} страны`,
-      "url": "${pageUrl}",
-      "inLanguage": "ru"
+      "name": "Переводы по странам",
+      "description": "Сравнение курсов переводов по всем доступным странам",
+      "numberOfItems": c.length,
+      "itemListElement": c.map((ct, i) => ({
+        "@type": "WebPage",
+        "position": i + 1,
+        "name": ct.name,
+        "url": `/transfers/${ct.id}/`
+      }))
     }
     </script>
   </div>

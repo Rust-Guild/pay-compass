@@ -28,7 +28,15 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
     "name": title,
     "description": description,
     "url": pageUrl,
-    "inLanguage": "ru"
+    "inLanguage": "ru",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Главная", "item": siteUrl },
+        { "@type": "ListItem", "position": 2, "name": "Переводы", "item": `${siteUrl}${base}transfers/` },
+        { "@type": "ListItem", "position": 3, "name": country.name, "item": pageUrl }
+      ]
+    }
   })}
   </script>
 
@@ -44,38 +52,102 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       gap: 0.5rem;
     }
 
+    /* ===== BREADCRUMB ===== */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      margin-bottom: 0.875rem;
+    }
+
+    .breadcrumb a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-amber);
+    }
+
+    .breadcrumb-sep {
+      color: var(--color-text-faint);
+      font-size: 0.6875rem;
+    }
+
+    .breadcrumb-current {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+
     .country-flag-large {
       font-size: 1.5rem;
     }
 
-    .methods-grid {
+    /* ===== REGION SECTION ===== */
+    .region-section {
+      margin-bottom: 2rem;
+    }
+
+    .region-header {
+      margin-bottom: 0.875rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .region-header h2 {
       display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.0625rem;
+      margin-bottom: 0.25rem;
     }
 
-    .method-block {
-      margin-bottom: 0.5rem;
+    .region-meta {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.25rem;
     }
 
-    .method-title {
+    /* ===== DENOM BLOCK ===== */
+    .denom-block {
+      margin-bottom: 1.25rem;
+    }
+
+    .denom-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.625rem;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+
+    .denom-title {
       font-family: var(--font-display);
-      font-size: 1.125rem;
+      font-size: 0.9375rem;
       font-weight: 600;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
-    .currency-badge {
-      font-size: 0.75rem;
-      padding: 0.125rem 0.5rem;
-      border-radius: 999px;
-      background: var(--color-surface);
-      color: var(--color-text-muted);
-      border: 1px solid var(--color-border);
+    .best-hint {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--color-success);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.1875rem 0.5rem;
+      background: var(--color-success-bg);
+      border-radius: 100px;
+      border: 1px solid rgba(20, 184, 166, 0.15);
     }
 
     /* ===== TABLE WRAPPER ===== */
@@ -86,74 +158,29 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       background: var(--color-surface);
     }
 
-    .provider-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
+    .price-table {
+      margin-top: 0;
+    }
+
+    .price-table th {
+      background: var(--color-night-elevated);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.625rem;
+    }
+
+    .price-table td {
+      padding: 0.5rem 0.75rem;
       font-size: 0.8125rem;
     }
 
-    .provider-table th {
-      text-align: left;
-      font-family: var(--font-mono);
-      font-size: 0.625rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--color-text-faint);
-      padding: 0.5rem 0.75rem;
-      border-bottom: 1px solid var(--color-border);
-      background: var(--color-night-elevated);
-    }
-
-    .provider-table th:first-child { border-radius: var(--radius-sm) 0 0 0; }
-    .provider-table th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
-
-    .provider-table td {
-      padding: 0.5rem 0.75rem;
-      border-bottom: 1px solid var(--color-border);
-      vertical-align: middle;
-    }
-
-    .provider-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .provider-table tbody tr:hover {
-      background: var(--color-night-subtle);
-    }
-
-    .provider-info {
+    .provider-cell {
       display: flex;
       align-items: center;
-      gap: 0.625rem;
-    }
-
-    .provider-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1px solid var(--color-border);
+      gap: 0.5rem;
     }
 
     .provider-name {
       font-weight: 500;
-      font-size: 0.875rem;
-    }
-
-    .rate-value {
-      font-weight: 600;
-      font-size: 0.9375rem;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .best-rate {
-      color: var(--color-success);
-    }
-
-    .worst-rate {
-      color: var(--color-text-muted);
     }
 
     .best-badge {
@@ -168,6 +195,49 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       padding: 0.125rem 0.375rem;
       border-radius: 100px;
       border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+
+    .price-cell {
+      font-weight: 600;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      letter-spacing: -0.01em;
+    }
+
+    .take-cell {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .rate-cell {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .diff-cell {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .diff-best {
+      color: var(--color-text-muted);
+    }
+
+    .diff-worse {
+      color: #f87171;
+    }
+
+    .medal-emoji {
+      margin-right: 0.25rem;
+      font-size: 1rem;
+    }
+
+    .action-cell {
+      text-align: right;
     }
 
     .btn-go {
@@ -191,12 +261,6 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       transform: translateY(-1px);
     }
 
-    .savings-indicator {
-      font-size: 0.75rem;
-      color: var(--color-success);
-      font-weight: 500;
-    }
-
     .row-best {
       background: var(--color-success-bg) !important;
     }
@@ -205,31 +269,30 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       background: rgba(20, 184, 166, 0.15) !important;
     }
 
-    .action-cell {
-      text-align: right;
-    }
-
     /* ===== RESPONSIVE: TABLE → CARDS ===== */
     @media (max-width: 640px) {
       .denom-header {
         flex-direction: column;
         align-items: flex-start;
       }
+      .region-meta {
+        font-size: 0.75rem;
+      }
 
       /* Скрываем заголовки таблицы */
-      .provider-table thead {
+      .price-table thead {
         display: none;
       }
 
       /* Трансформируем таблицу в карточки */
-      .provider-table,
-      .provider-table tbody,
-      .provider-table tr,
-      .provider-table td {
+      .price-table,
+      .price-table tbody,
+      .price-table tr,
+      .price-table td {
         display: block;
       }
 
-      .provider-table {
+      .price-table {
         font-size: 0.8125rem;
       }
 
@@ -240,7 +303,7 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       }
 
       /* Каждая строка = карточка */
-      .provider-table tr {
+      .price-table tr {
         background: var(--color-surface);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-md);
@@ -248,17 +311,17 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
         padding: 0.75rem;
       }
 
-      .provider-table tr:last-child {
+      .price-table tr:last-child {
         margin-bottom: 0;
       }
 
-      .provider-table tr.row-best {
+      .price-table tr.row-best {
         border-color: rgba(20, 184, 166, 0.3);
         background: var(--color-success-bg);
       }
 
       /* Ячейки внутри карточки */
-      .provider-table td {
+      .price-table td {
         padding: 0.25rem 0;
         border-bottom: none;
         display: flex;
@@ -268,7 +331,7 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       }
 
       /* Подписи колонок через data-атрибуты */
-      .provider-table td::before {
+      .price-table td::before {
         content: attr(data-label);
         font-weight: 500;
         color: var(--color-text-muted);
@@ -279,14 +342,14 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
       }
 
       /* Первая ячейка (провайдер) = заголовок карточки */
-      .provider-table td:first-child {
+      .price-table td:first-child {
         display: block;
         padding-bottom: 0.5rem;
         margin-bottom: 0.5rem;
         border-bottom: 1px solid var(--color-border);
         text-align: left;
       }
-      .provider-table td:first-child::before {
+      .price-table td:first-child::before {
         display: none;
       }
 
@@ -301,21 +364,79 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
         width: 100%;
         justify-content: center;
       }
+    }
 
-      .provider-logo {
-        width: 24px;
-        height: 24px;
-      }
+    /* ===== UPDATE INFO ===== */
+    .update-info {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+
+    /* ===== SEO CONTENT ===== */
+    .seo-content {
+      margin-bottom: 2rem;
+      padding: 1.25rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+
+    .seo-content h2 {
+      font-size: 1.0625rem;
+      margin-bottom: 0.625rem;
+      margin-top: 1rem;
+    }
+
+    .seo-content h2:first-child {
+      margin-top: 0;
+    }
+
+    .seo-content p {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .seo-content ol {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      padding-left: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .seo-content ol li {
+      margin-bottom: 0.375rem;
     }
   </style>
 
   <div>
-    <a href="/transfers/" class="link-back">
+    <a href="/" class="link-back">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
       </svg>
-      Все переводы
+      Главная
     </a>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/transfers/">Переводы</a>
+      <span class="breadcrumb-sep">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </span>
+      <span class="breadcrumb-current">{country.name}</span>
+    </div>
 
     <div class="page-header">
       <h1>
@@ -323,75 +444,102 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
         Переводы в {country.name}
       </h1>
       <p class="subtitle">
-        Сравниваем курсы — выберите лучшее предложение
+        Сравнивайте цены провайдеров и выбирайте лучший курс
       </p>
     </div>
 
-    <div class="methods-grid">
-      {country.methods.map((method) => {
-        // Вычисляем курсы для каждого провайдера
-        const providersWithRates = method.providers
-          .filter(p => p.take > 0)
-          .map(p => ({
-            ...p,
-            rate: p.price / p.take
-          }))
-          .sort((a, b) => a.rate - b.rate);
+    {country.methods.map((method) => {
+      // Вычисляем курсы для каждого провайдера
+      const providersWithRates = method.providers
+        .filter(p => p.take > 0)
+        .map(p => ({
+          ...p,
+          calculatedRate: p.price / p.take
+        }))
+        .sort((a, b) => a.calculatedRate - b.calculatedRate);
 
-        if (providersWithRates.length === 0) return null;
+      if (providersWithRates.length === 0) return null;
 
-        const bestRate = providersWithRates[0].rate;
-        const worstRate = providersWithRates[providersWithRates.length - 1].rate;
-        const savingsPercent = worstRate > bestRate ? ((worstRate - bestRate) / worstRate * 100) : 0;
+      const bestRate = providersWithRates[0].calculatedRate;
+      const worstRate = providersWithRates[providersWithRates.length - 1].calculatedRate;
+      const savingsPercent = worstRate > bestRate ? ((worstRate - bestRate) / bestRate * 100) : 0;
 
-        return (
-          <div class="method-block">
-            <h2 class="method-title">
-              {method.name}
-              <span class="currency-badge">{method.payCurrency} → {method.receiveCurrency}</span>
+      // Определяем позицию и разницу для каждого провайдера
+      const providersWithRank = providersWithRates.map((p, idx) => {
+        const diffPercent = p.calculatedRate != null && bestRate > 0
+          ? ((p.calculatedRate - bestRate) / bestRate * 100)
+          : 0;
+        return { ...p, rank: idx + 1, diffPercent };
+      });
+
+      return (
+        <div class="region-section">
+          <div class="region-header">
+            <h2>
+              <span>{method.name}</span>
             </h2>
+            <div class="region-meta">
+              Оплата: <strong>{method.payCurrency}</strong> · Получаете: <strong>{method.receiveCurrency}</strong>
+              {savingsPercent > 0 && (
+                <span class="best-hint" style="margin-left: 0.5rem">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                  Экономия до {savingsPercent.toFixed(0)}%
+                </span>
+              )}
+            </div>
+          </div>
 
+          <div class="denom-block">
+            <div class="denom-header">
+              <h3 class="denom-title">
+                Перевод {method.receiveCurrency}
+              </h3>
+            </div>
             <div class="price-table-wrapper">
-              <table class="provider-table">
+              <table class="price-table">
                 <thead>
                   <tr>
                     <th>Провайдер</th>
                     <th>Курс</th>
-                    <th>Экономия</th>
-                    <th></th>
+                    <th>Разница</th>
+                    <th>Получаете</th>
+                    <th>Цена ({method.payCurrency})</th>
+                    <th style="text-align: right">Действие</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {providersWithRates.map((provider) => {
-                    const isBest = provider.rate === bestRate;
-                    const isWorst = provider.rate === worstRate;
-                    const savings = isWorst && savingsPercent > 0 ? Math.round(savingsPercent) : 0;
-
+                  {providersWithRank.map((provider: any) => {
+                    const isBest = provider.rank === 1;
+                    const medal = provider.rank === 1 ? '🥇' : provider.rank === 2 ? '🥈' : provider.rank === 3 ? '🥉' : '';
                     return (
                       <tr class={isBest ? 'row-best' : ''}>
-                        <td data-label="Провайдер">
-                          <div class="provider-info">
+                        <td>
+                          <div class="provider-cell">
                             {provider.logo && (
                               <img src={provider.logo} alt={provider.name} class="provider-logo" loading="lazy" />
                             )}
-                            <span class="provider-name">{provider.name}</span>
-                            {isBest && <span class="best-badge">✓ лучший</span>}
+                            <span class="provider-name">
+                              {providersWithRank.length > 1 && medal && <span class="medal-emoji">{medal}</span>}
+                              {provider.name}
+                            </span>
+                            {isBest && <span class="best-badge">лучший</span>}
                           </div>
                         </td>
-                        <td data-label="Курс">
-                          <span class={`rate-value ${isBest ? 'best-rate' : ''} ${isWorst && !isBest ? 'worst-rate' : ''}`}>
-                            {provider.rate.toFixed(4)}
-                          </span>
+                        <td class="rate-cell" data-label="Курс">{provider.calculatedRate != null ? provider.calculatedRate.toFixed(4) : '—'}</td>
+                        <td class={`diff-cell ${isBest ? 'diff-best' : 'diff-worse'}`} data-label="Разница">
+                          {isBest ? '—' : `+${provider.diffPercent.toFixed(1)}%`}
                         </td>
-                        <td data-label="Экономия">
-                          {isBest && savingsPercent > 0 ? (
-                            <span class="savings-indicator">
-                              ✓ Лучший курс
-                            </span>
-                          ) : null}
-                        </td>
+                        <td class="take-cell" data-label="Получаете">{provider.take > 0 ? `${provider.take} ${method.receiveCurrency}` : '—'}</td>
+                        <td class="price-cell" data-label={`Цена (${method.payCurrency})`}>{provider.price.toFixed(2)}</td>
                         <td class="action-cell">
-                          <a href={provider.url} target="_blank" rel="noopener noreferrer" class="btn-go">
+                          <a
+                            href={provider.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn-go"
+                          >
                             Перейти
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
@@ -405,19 +553,45 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
               </table>
             </div>
           </div>
-        );
-      })}
-    </div>
+        </div>
+      );
+    })}
 
-    <!-- Structured data -->
+    <!-- SEO: Описательный контент -->
+    <article class="seo-content">
+      <h2>Курсы переводов в ${country.name} — сравнение цен провайдеров</h2>
+      <p>На этой странице вы можете сравнить курсы переводов в <strong>${country.name}</strong> от различных провайдеров. Мы агрегируем данные в реальном времени, чтобы вы всегда видели актуальные цены и могли выбрать наиболее выгодный вариант.</p>
+
+      <h2>Что такое курс перевода?</h2>
+      <p>Курс перевода — это соотношение, по которому вы можете отправить деньги в ${country.name}. Разные провайдеры предлагают разные курсы, и разница может быть существенной.</p>
+
+      <h2>Как выбрать лучший курс?</h2>
+      <ol>
+        <li>Сравните курсы всех доступных провайдеров в таблице выше</li>
+        <li>Обратите внимание на рейтинг и отзывы провайдера</li>
+        <li>Учтите скорость перевода и удобство оплаты</li>
+        <li>Выберите провайдера с лучшим соотношением цены и качества</li>
+      </ol>
+    </article>
+
+    <!-- JSON-LD: Service -->
     <script type="application/ld+json" define:vars={{ c: country, m: country.methods }}>
     {
       "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": "Переводы в ${c.name}",
+      "@type": "Service",
+      "name": `Курсы переводов в ${c.name}`,
       "description": `Сравнение курсов переводов в ${c.name}: ${m.map(mt => mt.name).join(', ')}`,
-      "url": "${pageUrl}",
-      "inLanguage": "ru"
+      "provider": {
+        "@type": "Organization",
+        "name": "PayCompass",
+        "url": "${siteUrl}"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "${c.name}"
+      },
+      "serviceType": "Сравнение курсов переводов",
+      "category": "Переводы"
     }
     </script>
   </div>
