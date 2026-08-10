@@ -30,7 +30,8 @@ function pluralizeRegions(n: number): string {
     /* ===== HERO ===== */
     .hero {
       text-align: center;
-      padding: 3rem 0 2.5rem;
+      padding: 4rem 0 3.5rem;
+      position: relative;
     }
 
     .hero-eyebrow {
@@ -75,18 +76,152 @@ function pluralizeRegions(n: number): string {
       line-height: 1.6;
     }
 
+    /* ===== HERO VISUAL ===== */
+    .hero-visual {
+      position: absolute;
+      top: 50%;
+      right: 8%;
+      transform: translateY(-50%);
+      width: 240px;
+      height: 240px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .hero-visual--left {
+      right: auto;
+      left: 8%;
+    }
+
+    /* --- Кольца --- */
+    .compass-ring {
+      fill: none;
+      stroke: var(--color-amber);
+      stroke-width: 1.2;
+      opacity: 0.9;
+    }
+
+    .compass-ring--inner {
+      stroke: var(--color-teal);
+      opacity: 0.6;
+      stroke-width: 1;
+    }
+
+    .compass-ring--outer {
+      stroke-width: 0.8;
+      opacity: 0.6;
+      stroke-dasharray: 3 5;
+      /* Вращение через SVG <animateTransform>, не через CSS */
+    }
+
+    .compass-ring--dashed {
+      stroke: var(--color-teal);
+      stroke-width: 0.8;
+      opacity: 0.5;
+      stroke-dasharray: 4 8;
+      /* Вращение через SVG <animateTransform>, не через CSS */
+    }
+
+    .compass-ring--thin {
+      stroke-width: 0.5;
+      opacity: 0.4;
+    }
+
+    /* --- Стрелка --- */
+    .compass-needle {
+      /* Вращение через SVG <animateTransform>, не через CSS transform */
+    }
+
+    .compass-needle--north {
+      fill: var(--color-amber);
+    }
+
+    .compass-needle--south {
+      fill: var(--color-teal);
+      opacity: 0.8;
+    }
+
+    /* --- Центр --- */
+    .compass-dot {
+      fill: var(--color-amber);
+      /* Пульсация через SVG <animate>, не через CSS */
+    }
+
+    .compass-dot--outer {
+      fill: none;
+      stroke: var(--color-amber);
+      stroke-width: 1;
+      opacity: 0.6;
+      /* Пульсация через SVG <animate>, не через CSS */
+    }
+
+    /* --- Метки --- */
+    .compass-tick {
+      stroke: var(--color-amber);
+      stroke-width: 1.2;
+      opacity: 0.6;
+    }
+
+    .compass-tick--minor {
+      stroke-width: 0.8;
+      opacity: 0.4;
+    }
+
+    .compass-tick--micro {
+      stroke-width: 0.5;
+      opacity: 0.25;
+    }
+
+    /* --- Подписи --- */
+    .compass-label {
+      fill: var(--color-amber);
+      font-family: var(--font-mono);
+      font-size: 8px;
+      opacity: 0.85;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    /* --- Дуги --- */
+    .compass-arc {
+      fill: none;
+      stroke: var(--color-amber);
+      stroke-width: 0.6;
+      opacity: 0.4;
+    }
+
+    .compass-arc--teal {
+      stroke: var(--color-teal);
+      opacity: 0.35;
+    }
+
+    /* --- Ромб-декор --- */
+    .compass-diamond {
+      fill: none;
+      stroke: var(--color-amber);
+      stroke-width: 0.6;
+      opacity: 0.35;
+    }
+
+    /* --- Keyframes --- */
+    @media (max-width: 640px) {
+      .hero-visual {
+        display: none;
+      }
+    }
+
     /* ===== SEARCH ===== */
     .search-section {
-      margin-bottom: 2.5rem;
+      margin-bottom: 3.5rem;
     }
 
     /* ===== SECTIONS ===== */
     .section {
-      margin-bottom: 2.5rem;
+      margin-bottom: 3.5rem;
     }
 
     .category-block {
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
 
     .category-header {
@@ -357,6 +492,125 @@ function pluralizeRegions(n: number): string {
   <div>
     <!-- Hero -->
     <section class="hero">
+      <!-- Compass Visual -->
+      <svg class="hero-visual" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- ===== Кольца ===== -->
+        <!-- Внешнее пунктирное кольцо (вращается) -->
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="80s" repeatCount="indefinite"/>
+          <circle class="compass-ring compass-ring--outer" cx="100" cy="100" r="95"/>
+        </g>
+        <!-- Основное внешнее кольцо -->
+        <circle class="compass-ring" cx="100" cy="100" r="90"/>
+        <!-- Штрихованное промежуточное кольцо (вращается) -->
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="55s" repeatCount="indefinite"/>
+          <circle class="compass-ring compass-ring--dashed" cx="100" cy="100" r="80" pathLength="360"/>
+        </g>
+        <!-- Внутреннее кольцо -->
+        <circle class="compass-ring compass-ring--inner" cx="100" cy="100" r="70"/>
+        <!-- Декоративное тонкое кольцо -->
+        <circle class="compass-ring compass-ring--thin" cx="100" cy="100" r="55"/>
+        <!-- Внутреннее декоративное кольцо -->
+        <circle class="compass-ring" cx="100" cy="100" r="50" style="opacity: 0.2; stroke-width: 0.3;"/>
+
+        <!-- ===== Дуги секторов ===== -->
+        <path class="compass-arc" d="M 100 15 A 85 85 0 0 1 185 100"/>
+        <path class="compass-arc compass-arc--teal" d="M 185 100 A 85 85 0 0 1 100 185"/>
+        <path class="compass-arc" d="M 100 185 A 85 85 0 0 1 15 100"/>
+        <path class="compass-arc compass-arc--teal" d="M 15 100 A 85 85 0 0 1 100 15"/>
+
+        <!-- ===== Декоративные ромбы по диагоналям ===== -->
+        <polygon class="compass-diamond" points="100,52 104,56 100,60 96,56"/>
+        <polygon class="compass-diamond" points="100,140 104,144 100,148 96,144"/>
+        <polygon class="compass-diamond" points="52,100 56,104 60,100 56,96"/>
+        <polygon class="compass-diamond" points="140,100 144,104 148,100 144,96"/>
+
+        <!-- ===== Треугольники-указатели по сторонам света ===== -->
+        <polygon style="fill: var(--color-amber); opacity: 0.5;" points="100,8 96,16 104,16"/>
+        <polygon style="fill: var(--color-amber); opacity: 0.5;" points="100,192 96,184 104,184"/>
+        <polygon style="fill: var(--color-amber); opacity: 0.5;" points="8,100 16,96 16,104"/>
+        <polygon style="fill: var(--color-amber); opacity: 0.5;" points="192,100 184,96 184,104"/>
+
+        <!-- ===== Радиальные линии по диагоналям ===== -->
+        <line style="stroke: var(--color-teal); stroke-width: 0.4; opacity: 0.3;" x1="100" y1="100" x2="33" y2="33"/>
+        <line style="stroke: var(--color-teal); stroke-width: 0.4; opacity: 0.3;" x1="100" y1="100" x2="167" y2="33"/>
+        <line style="stroke: var(--color-teal); stroke-width: 0.4; opacity: 0.3;" x1="100" y1="100" x2="33" y2="167"/>
+        <line style="stroke: var(--color-teal); stroke-width: 0.4; opacity: 0.3;" x1="100" y1="100" x2="167" y2="167"/>
+
+        <!-- ===== Метки градусов ===== -->
+        <g class="compass-ticks">
+          <!-- Основные метки (N, S, E, W) — длинные -->
+          <line class="compass-tick" x1="100" y1="3" x2="100" y2="18"/>
+          <line class="compass-tick" x1="100" y1="182" x2="100" y2="197"/>
+          <line class="compass-tick" x1="3" y1="100" x2="18" y2="100"/>
+          <line class="compass-tick" x1="182" y1="100" x2="197" y2="100"/>
+
+          <!-- Метки 45° — средние -->
+          <line class="compass-tick compass-tick--minor" x1="100" y1="3" x2="100" y2="15" transform="rotate(45 100 100)"/>
+          <line class="compass-tick compass-tick--minor" x1="100" y1="3" x2="100" y2="15" transform="rotate(135 100 100)"/>
+          <line class="compass-tick compass-tick--minor" x1="100" y1="3" x2="100" y2="15" transform="rotate(225 100 100)"/>
+          <line class="compass-tick compass-tick--minor" x1="100" y1="3" x2="100" y2="15" transform="rotate(315 100 100)"/>
+
+          <!-- Метки 30° / 60° — короткие -->
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(30 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(60 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(120 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(150 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(210 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(240 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(300 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="6" x2="100" y2="16" transform="rotate(330 100 100)"/>
+
+          <!-- Метки 15° / 75° / 105° и т.д. — микро -->
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(15 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(75 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(105 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(165 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(195 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(255 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(285 100 100)"/>
+          <line class="compass-tick compass-tick--micro" x1="100" y1="8" x2="100" y2="16" transform="rotate(345 100 100)"/>
+        </g>
+
+        <!-- ===== Подписи сторон света ===== -->
+        <text class="compass-label" x="100" y="24">N</text>
+        <text class="compass-label" x="100" y="180">S</text>
+        <text class="compass-label" x="24" y="100">W</text>
+        <text class="compass-label" x="176" y="100">E</text>
+
+        <!-- ===== Градусные подписи ===== -->
+        <text style="fill: var(--color-teal); font-family: var(--font-mono); font-size: 6px; opacity: 0.45; text-anchor: middle; dominant-baseline: central;" x="100" y="30">0°</text>
+        <text style="fill: var(--color-teal); font-family: var(--font-mono); font-size: 6px; opacity: 0.45; text-anchor: middle; dominant-baseline: central;" x="100" y="174">180°</text>
+        <text style="fill: var(--color-teal); font-family: var(--font-mono); font-size: 6px; opacity: 0.45; text-anchor: middle; dominant-baseline: central;" x="30" y="100">270°</text>
+        <text style="fill: var(--color-teal); font-family: var(--font-mono); font-size: 6px; opacity: 0.45; text-anchor: middle; dominant-baseline: central;" x="170" y="100">90°</text>
+
+        <!-- ===== Стрелка компаса ===== -->
+        <g class="compass-needle">
+          <!-- Маятниковое покачивание ±15° -->
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            values="-15 100 100; 15 100 100; -15 100 100"
+            dur="12s"
+            repeatCount="indefinite"
+          />
+          <!-- Северная часть стрелки — более выраженная -->
+          <polygon class="compass-needle--north" points="100,18 93,95 100,90 107,95"/>
+          <!-- Южная часть стрелки -->
+          <polygon class="compass-needle--south" points="100,182 93,105 100,110 107,105"/>
+          <!-- Внешнее пульсирующее кольцо центра -->
+          <circle class="compass-dot--outer" cx="100" cy="100" r="7">
+            <animate attributeName="r" values="7;10;7" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.3;0.55;0.3" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Центральная точка -->
+          <circle class="compass-dot" cx="100" cy="100" r="3.5">
+            <animate attributeName="r" values="3;4.5;3" dur="2s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+      </svg>
+
       <div class="hero-eyebrow">Сравнение курсов</div>
       <h1>
         Плати по<br /><span class="accent">лучшей цене</span>

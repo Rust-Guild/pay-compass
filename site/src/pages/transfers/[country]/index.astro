@@ -42,7 +42,7 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
 
   <style>
     .page-header {
-      margin-bottom: 2rem;
+      margin-bottom: 3rem;
     }
 
     .page-header h1 {
@@ -229,6 +229,32 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
 
     .diff-worse {
       color: #f87171;
+    }
+
+    /* ===== DIFF BAR VISUAL INDICATOR ===== */
+    .diff-bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .diff-bar {
+      height: 8px;
+      background: rgba(248, 113, 113, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .diff-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width var(--transition-base);
+      min-width: 4px;
+    }
+
+    .diff-bar-fill--worse {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+      box-shadow: 0 0 6px rgba(248, 113, 113, 0.4);
     }
 
     .medal-emoji {
@@ -472,6 +498,9 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
         return { ...p, rank: idx + 1, diffPercent };
       });
 
+      // Максимальная разница для масштабирования полоски
+      const maxDiff = Math.max(...providersWithRank.map(p => p.diffPercent), 1);
+
       return (
         <div class="region-section">
           <div class="region-header">
@@ -529,7 +558,14 @@ const pageUrl = `${siteUrl}${base}transfers/${country.id}/`;
                         </td>
                         <td class="rate-cell" data-label="Курс">{provider.calculatedRate != null ? provider.calculatedRate.toFixed(4) : '—'}</td>
                         <td class={`diff-cell ${isBest ? 'diff-best' : 'diff-worse'}`} data-label="Разница">
-                          {isBest ? '—' : `+${provider.diffPercent.toFixed(1)}%`}
+                          <div class="diff-bar-wrapper">
+                            {isBest ? '—' : `+${provider.diffPercent.toFixed(1)}%`}
+                            {!isBest && (
+                              <div class="diff-bar">
+                                <div class="diff-bar-fill diff-bar-fill--worse" style={`width: ${Math.max((provider.diffPercent / maxDiff) * 100, 8)}%`}></div>
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td class="take-cell" data-label="Получаете">{provider.take > 0 ? `${provider.take} ${method.receiveCurrency}` : '—'}</td>
                         <td class="price-cell" data-label={`Цена (${method.payCurrency})`}>{provider.price.toFixed(2)}</td>

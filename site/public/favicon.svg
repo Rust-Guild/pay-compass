@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <defs>
-    <path id="ringPath" d="M16,2 A14,14 0 1,1 15.99,2"/>
     <linearGradient id="amberTeal" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#F59E0B"/>
       <stop offset="50%" stop-color="#14B8A6"/>
@@ -15,6 +14,10 @@
   <circle cx="16" cy="16" r="14" fill="none" stroke="url(#amberTeal)" stroke-width="4" mask="url(#ringMask)" transform="rotate(-20 16 16)"/>
   <!-- Dark inner circle -->
   <circle cx="16" cy="16" r="10" fill="#0B1120"/>
-  <!-- Amber center dot -->
-  <circle cx="16" cy="16" r="4" fill="#F59E0B"/>
+  <!-- Compass needle — North (amber) -->
+  <polygon points="16,6 13.5,16 16,14 18.5,16" fill="#F59E0B"/>
+  <!-- Compass needle — South (teal) -->
+  <polygon points="16,26 13.5,16 16,18 18.5,16" fill="#14B8A6"/>
+  <!-- Center pivot dot -->
+  <circle cx="16" cy="16" r="2" fill="#F59E0B"/>
 </svg>
