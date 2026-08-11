@@ -564,7 +564,8 @@ export function parseTransferData(): { countries: TransferCountryData[]; provide
       methods: [],
     };
 
-    // Группируем методы по methodId, объединяя провайдеров из разных receiveCurrency
+    // Группируем методы по methodId + receiveCurrency, чтобы провайдеры с разными
+    // валютами получения не смешивались в одной таблице сравнения
     const methodMap = new Map<string, { method: TransferMethodData; provKeys: Set<string> }>();
 
     for (const [methodId, methodValue] of Object.entries(countryValue)) {
@@ -576,7 +577,10 @@ export function parseTransferData(): { countries: TransferCountryData[]; provide
         for (const [receiveCurrency, receiveValue] of Object.entries(payCurrencyValue)) {
           if (!receiveValue || typeof receiveValue !== 'object') continue;
 
-          let methodEntry = methodMap.get(methodId);
+          // Ключ включает receiveCurrency, чтобы провайдеры с разными валютами
+          // получения были в отдельных методах
+          const methodKey = `${methodId}::${receiveCurrency}`;
+          let methodEntry = methodMap.get(methodKey);
           if (!methodEntry) {
             const method: TransferMethodData = {
               id: methodId,
@@ -588,11 +592,8 @@ export function parseTransferData(): { countries: TransferCountryData[]; provide
               providers: [],
             };
             methodEntry = { method, provKeys: new Set() };
-            methodMap.set(methodId, methodEntry);
+            methodMap.set(methodKey, methodEntry);
           }
-
-          // Обновляем receiveCurrency последним найденным
-          methodEntry.method.receiveCurrency = receiveCurrency;
 
           for (const [provKey, provValue] of Object.entries(receiveValue)) {
             if (!provValue || typeof provValue !== 'object' || !('url' in provValue)) continue;
